@@ -1,0 +1,208 @@
+{-# START_FILE {{name}}.cabal #-}
+name:              {{name}}
+version:           0.0.0
+cabal-version:     >= 1.8
+build-type:        Simple
+
+Flag dev
+    Description:   Turn on development settings, like auto-reload templates.
+    Default:       False
+
+Flag library-only
+    Description:   Build for use with "yesod devel"
+    Default:       False
+
+library
+    hs-source-dirs: ., app
+    exposed-modules: Application
+                     Foundation
+                     Import
+                     Import.NoFoundation
+                     Settings
+                     Settings.StaticFiles
+                     Handler.Common
+                     Handler.School
+                     Handler.Sandbox
+                     Handler.Home
+                     Handler.CostParameters
+                     Handler.TagOrder
+                     Handler.User
+                     Handler.PaymentBalance
+                     Handler.TagExpense
+
+    if flag(dev) || flag(library-only)
+        cpp-options:   -DDEVELOPMENT
+        ghc-options:   -Wall -fwarn-tabs -O0
+    else
+        ghc-options:   -Wall -fwarn-tabs -O2
+
+    extensions: TemplateHaskell
+                QuasiQuotes
+                OverloadedStrings
+                NoImplicitPrelude
+                MultiParamTypeClasses
+                TypeFamilies
+                GADTs
+                GeneralizedNewtypeDeriving
+                FlexibleContexts
+                FlexibleInstances
+                EmptyDataDecls
+                NoMonomorphismRestriction
+                DeriveDataTypeable
+                ViewPatterns
+                TupleSections
+                RecordWildCards
+
+    build-depends: base                          >= 4          && < 5
+                 , yesod                         >= 1.4.1      && < 1.5
+                 , yesod-core                    >= 1.4.17     && < 1.5
+                 , yesod-auth                    >= 1.4.0      && < 1.5
+                 , yesod-static                  >= 1.4.0.3    && < 1.6
+                 , yesod-form                    >= 1.4.0      && < 1.5
+                 , classy-prelude                >= 0.10.2
+                 , classy-prelude-conduit        >= 0.10.2
+                 , classy-prelude-yesod          >= 0.10.2
+                 , bytestring                    >= 0.9        && < 0.11
+                 , text                          >= 0.11       && < 2.0
+                 , persistent                    >= 2.0        && < 2.3
+                 , persistent-postgresql         >= 2.1.1      && < 2.3
+                 , persistent-template           >= 2.0        && < 2.3
+                 , template-haskell
+                 , shakespeare                   >= 2.0        && < 2.1
+                 , hjsmin                        >= 0.1        && < 0.2
+                 , monad-control                 >= 0.3        && < 1.1
+                 , wai-extra                     >= 3.0        && < 3.1
+                 , yaml                          >= 0.8        && < 0.9
+                 , http-conduit                  >= 2.1        && < 2.2
+                 , directory                     >= 1.1        && < 1.3
+                 , warp                          >= 3.0        && < 3.3
+                 , data-default
+                 , aeson                         >= 0.6        && < 0.11
+                 , conduit                       >= 1.0        && < 2.0
+                 , monad-logger                  >= 0.3        && < 0.4
+                 , fast-logger                   >= 2.2        && < 2.5
+                 , wai-logger                    >= 2.2        && < 2.3
+                 , file-embed
+                 , safe
+                 , unordered-containers
+                 , containers
+                 , vector
+                 , time
+                 , case-insensitive
+                 , wai
+                 , lens
+
+                 , serversession
+                 , serversession-frontend-yesod
+                 , serversession-backend-persistent
+
+                 , stm-lifted
+                 , conduit-combinators
+                 , stm
+                 , websockets
+                 , yesod-websockets
+
+                 , jabara-util
+                 , jabara-persist-util
+                 , jabara-yesod-auth-simple
+                 , jabara-yesod-auth-freeaccount
+                 , jabara-yesod-util
+
+executable         {{name}}
+    if flag(library-only)
+        Buildable: False
+
+    main-is:           main.hs
+    hs-source-dirs:    app
+    build-depends:     base, {{name}}
+
+    ghc-options:       -threaded -rtsopts -with-rtsopts=-N
+
+test-suite test
+    type:              exitcode-stdio-1.0
+    main-is:           Spec.hs
+    hs-source-dirs:    test
+    ghc-options:       -Wall
+
+    extensions: TemplateHaskell
+                QuasiQuotes
+                OverloadedStrings
+                NoImplicitPrelude
+                CPP
+                MultiParamTypeClasses
+                TypeFamilies
+                GADTs
+                GeneralizedNewtypeDeriving
+                FlexibleContexts
+                FlexibleInstances
+                EmptyDataDecls
+                NoMonomorphismRestriction
+                DeriveDataTypeable
+                ViewPatterns
+                TupleSections
+
+    build-depends: base
+                 , {{name}}
+                 , yesod-test >= 1.5.0.1 && < 1.6
+                 , yesod-core
+                 , yesod
+                 , persistent
+                 , persistent-postgresql
+                 , resourcet
+                 , monad-logger
+                 , shakespeare
+                 , transformers
+                 , hspec >= 2.0.0
+                 , classy-prelude
+                 , classy-prelude-yesod
+                 , aeson
+
+{-# START_FILE stack.yaml #-}
+flags:
+  {{name}}:
+    library-only: false
+    dev: false
+extra-package-dbs: []
+packages:
+- '.'
+- location:
+    git: https://github.com/jabaraster/jabara-util
+    commit: f974a3be2544b1e54c8751476ed7d997b82b96c6
+- location:
+    git: https://github.com/jabaraster/jabara-persist-util
+    commit: 0911503151ccdc68007aa87da378935c3707d22c
+- location:
+    git: https://github.com/jabaraster/jabara-yesod-util
+    commit: ddf4d7f8a7e7b5b79bcef8c50754bc92513c997d
+- location:
+    git: https://github.com/jabaraster/jabara-yesod-auth-simple
+    commit: 5e02ab4bab6c4744ba6041aee2a9f1866e5cd0b7
+- location:
+    git: https://github.com/jabaraster/jabara-yesod-auth-freeaccount.git
+    commit: d0aaa79bb49e3dfa782aef0f26b737e0bb200ebe
+extra-deps:
+- stm-lifted-0.1.0.0
+resolver: lts-5.13
+
+{-# START_FILE LICENSE #-}
+The MIT License (MIT)
+
+Copyright (c) {{year}}{{^year}}2016{{/year}} jabaraster
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
